@@ -120,7 +120,7 @@ int main()
             continue;
         }
 
-        // Search for the book
+		// Searches for the book by Index position inside array - otherwise returns -1 if not found
         int index = findBookByISBN(books, SIZE, userISBN);
 
         if (index == -1)

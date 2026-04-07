@@ -52,4 +52,6 @@ bool Book::isAvailable()
     return availability;
 }
 //    
-// 
+// added comments to explain the code in Book.cpp file. 
+// The Book class has private data members to store book details and public member functions to set details, display details, borrow and return books, and get the ISBN and availability status. 
+// The displayBookDetails function uses manipulators to format the output in a tabular form.
