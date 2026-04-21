@@ -5,37 +5,39 @@
 #include <string>
 using namespace std;
 
-// Book class represents one book in the library
+// Book class represents one book in the library system
 class Book
 {
 private:
-    // Private data members (encapsulation)
     string title;
     string author;
-    string isbn;
-    bool availability;
+    int    isbn;
+    bool   availability;
     string dateAdded;
 
 public:
-    // Sets all details of the book
-    void setBookDetails(string t, string a, string i, bool av, string d);
+    // Default constructor – initialises a blank/empty book
+    Book();
 
-    // Displays book details in formatted output
-    void displayBookDetails();
+    // Sets all details for the book at once
+    void setBookDetails(string t, string a, int i, bool avail, string date);
 
-    // Borrows the book if available
-    // Returns true if borrowing is successful, false otherwise
+    // Displays this book's details as one formatted row
+    void displayBookDetails() const;
+
+    // Borrows the book if it is currently available.
+    // Returns true on success, false if the book is already borrowed.
     bool borrowBook();
 
-    // Returns the book and marks it as available
-    void returnBook();
+    // Returns the book if it is currently borrowed.
+    // Returns true on success, false if the book is already available.
+    bool returnBook();
 
-    // Returns the ISBN of the book
-    string getISBN();
+    // Returns true if the book is available to borrow
+    bool isAvailable() const;
 
-    // Returns true if the book is available
-    bool isAvailable();
+    // Returns the ISBN so main() can search by it
+    int getISBN() const;
 };
 
-#endif
-//test
+#endif // BOOK_H

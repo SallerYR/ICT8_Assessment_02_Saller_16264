@@ -1,57 +1,73 @@
-#include "Book.h"
-#include <iomanip> // Including for setw and left manipulators - used in displayBookDetails 
+﻿#include "Book.h"
+#include <iomanip>  // setw, left
+#include <iostream>
+using namespace std;
 
-// Assign values to all book attributes
-void Book::setBookDetails(string t, string a, string i, bool av, string d)
+// ── Default constructor
+Book::Book()
+{
+    title = "";
+    author = "";
+    isbn = 0;
+    availability = false;
+    dateAdded = "";
+}
+
+// ── setBookDetails 
+void Book::setBookDetails(string t, string a, int i, bool avail, string date)
 {
     title = t;
     author = a;
     isbn = i;
-    availability = av;
-    dateAdded = d;
+    availability = avail;
+    dateAdded = date;
 }
 
-// Display one book's details
-void Book::displayBookDetails()
+// ── displayBookDetails 
+// Prints one row aligned with the header printed in main().
+void Book::displayBookDetails() const
 {
     cout << left
-        << setw(20) << title
-        << setw(20) << author
-        << setw(10) << isbn
-        << setw(15) << (availability ? "Available" : "Borrowed")
-        << setw(15) << dateAdded
+        << setw(8) << isbn
+        << setw(35) << title
+        << setw(25) << author
+        << setw(12) << (availability ? "Available" : "Borrowed")
+        << setw(12) << dateAdded
         << endl;
 }
 
-// Borrow the book only if it is available
+// ── borrowBook 
+// Returns true if the book was successfully borrowed, false if already borrowed.
 bool Book::borrowBook()
+{
+    if (!availability)
+    {
+        return false;   // already borrowed – caller prints the error
+    }
+    availability = false;
+    return true;
+}
+
+// ── returnBook 
+// Returns true if the book was successfully returned, false if already on shelf.
+bool Book::returnBook()
 {
     if (availability)
     {
-        availability = false;
-        return true;
+        return false;   // already on shelf – caller prints the error
     }
-    return false;
-}
-
-// Return the book and mark it as available
-void Book::returnBook()
-{
     availability = true;
+    return true;
 }
 
-// Return the ISBN of the book
-string Book::getISBN()
-{
-    return isbn;
-}
-
-// Return the availability status
-bool Book::isAvailable()
+// ── isAvailable 
+bool Book::isAvailable() const
 {
     return availability;
 }
-//    
-// added comments to explain the code in Book.cpp file. 
-// The Book class has private data members to store book details and public member functions to set details, display details, borrow and return books, and get the ISBN and availability status. 
-// The displayBookDetails function uses manipulators to format the output in a tabular form.
+
+// ── getISBN
+int Book::getISBN() const
+{
+    return isbn;
+}

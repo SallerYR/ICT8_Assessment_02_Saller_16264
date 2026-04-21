@@ -1,152 +1,226 @@
-#include <iostream>
-#include <string> // For string data type 
+﻿#include <iostream>
+#include <iomanip>   // setw, left
+#include <string>
 #include "Book.h"
-#include <iomanip> // Manipulators for formatting output
 using namespace std;
 
-// Function to display a line separator
+// Constants
+const int SIZE = 5;
+
+// ── Helper: print table separator line
 void printLine()
 {
-    cout << "-------------------------------------------------------------------------------" << endl;
-
-
-
+    cout << string(92, '-') << endl;
 }
 
-// Function to display heading for book table aligned with book details
+// ── Helper: print column header row 
 void displayHeader()
 {
     printLine();
     cout << left
-        << setw(20) << "TITLE"
-        << setw(20) << "AUTHOR"
-        << setw(10) << "ISBN"
-        << setw(15) << "STATUS"
-        << setw(15) << "DATE ADDED"
+        << setw(8) << "ISBN"
+        << setw(35) << "TITLE"
+        << setw(25) << "AUTHOR"
+        << setw(12) << "STATUS"
+        << setw(12) << "DATE ADDED"
         << endl;
     printLine();
 }
 
-// Function to display all books in the array
+// ── Helper: display all books
 void displayAllBooks(Book books[], int size)
 {
     displayHeader();
-
     for (int i = 0; i < size; i++)
     {
         books[i].displayBookDetails();
     }
-
     printLine();
 }
 
-// Function to sort books by ISBN using Insertion Sort
-void sortBooksByISBN(Book books[], int size)
+// ── Helper: sort books array by ISBN (selection sort) 
+void sortByISBN(Book books[], int size)
 {
-    for (int i = 1; i < size; i++)
+    for (int i = 0; i < size - 1; i++)
     {
-        Book keyBook = books[i];
-        int j = i - 1;
-
-        // Move books with larger ISBN values one position ahead
-        while (j >= 0 && books[j].getISBN() > keyBook.getISBN())
+        int minIdx = i;
+        for (int j = i + 1; j < size; j++)
         {
-            books[j + 1] = books[j];
-            j--;
+            if (books[j].getISBN() < books[minIdx].getISBN())
+                minIdx = j;
         }
-
-        books[j + 1] = keyBook;
+        if (minIdx != i)
+        {
+            Book temp = books[i];
+            books[i] = books[minIdx];
+            books[minIdx] = temp;
+        }
     }
 }
 
-// Function to search for a book by ISBN
-// Returns the index if found, otherwise returns -1
-int findBookByISBN(Book books[], int size, string isbn)
+// ── Helper: find a book by ISBN, returns index or -1 
+int findBookByISBN(Book books[], int size, int targetISBN)
 {
     for (int i = 0; i < size; i++)
     {
-        if (books[i].getISBN() == isbn)
-        {
+        if (books[i].getISBN() == targetISBN)
             return i;
-        }
     }
     return -1;
 }
 
+// ── Helper: print the main menu
+void displayMenu()
+{
+    cout << "\n==============================\n";
+    cout << "   Library Book System Menu   \n";
+    cout << "==============================\n";
+    cout << "  1. Borrow Book\n";
+    cout << "  2. Return Book\n";
+    cout << "  3. Display Books\n";
+    cout << "  4. Sort Books (by ISBN)\n";
+    cout << "  0. Exit\n";
+    cout << "==============================\n";
+    cout << "Enter your choice: ";
+}
+
+// ── main ───────────────────────────────────────────────────────────────────────
 int main()
 {
-    const int SIZE = 5;
-
-    // Create array of 5 Book objects
+    // Initialise exactly 5 books 
     Book books[SIZE];
 
-    // Initialize sample data
-    books[0].setBookDetails("C++ Primer", "Stanley B. Lippman", "1005", true, "2024-01-10");
-    books[1].setBookDetails("OOP Guide", "Rudolf Pecinovsky", "1002", true, "2024-02-15");
-    books[2].setBookDetails("Python", "Mark Lutz", "1004", false, "2024-03-05");
-    books[3].setBookDetails("JavaScript", "David Flanagan", "1001", true, "2024-01-25");
-    books[4].setBookDetails("HTML & CSS", "Jon Duckett", "1003", true, "2024-04-01");
+    books[0].setBookDetails("C++ Primer", "Stanley B. Lippman", 1005, true, "2024-01-10");
+    books[1].setBookDetails("Clean Code", "Robert C. Martin", 1002, true, "2024-02-15");
+    books[2].setBookDetails("Python", "Mark Lutz", 1004, false, "2024-03-05");
+    books[3].setBookDetails("The Pragmatic Programmer", "Andrew Hunt", 1001, true, "2024-01-25");
+    books[4].setBookDetails("Introduction to Algorithms", "Thomas H. Cormen", 1003, true, "2024-04-01");
 
-    // Display unsorted books
-    cout << "\nLIBRARY BOOK LIST (BEFORE SORTING)\n";
-    displayAllBooks(books, SIZE);
+    // Sort by ISBN at startup
+    sortByISBN(books, SIZE);
 
-    // Sort books by ISBN using Insertion Sort
-    sortBooksByISBN(books, SIZE);
+    int choice = -1;
 
-    // Display sorted books
-    cout << "\nLIBRARY BOOK LIST (AFTER SORTING BY ISBN)\n";
-    displayAllBooks(books, SIZE);
-
-    string userISBN;
-
-    // Repeat until user enters 0
+    //  Main menu loop 
     while (true)
     {
-        cout << "\nEnter ISBN to borrow a book (or 0 to exit): ";
-        cin >> userISBN;
+        displayMenu();
+        cin >> choice;
 
-        // Exit condition
-        if (userISBN == "0")
+        // ── Option 0: Exit 
+        if (choice == 0)
         {
-            cout << "\nProgram terminated. Thank you.\n";
+            cout << "\nGoodbye!\n";
             break;
         }
 
-        // Simple input validation
-        if (userISBN == "")
+        // ── Option 1: Borrow Book 
+        else if (choice == 1)
         {
-            cout << "Invalid input. Please enter a valid ISBN.\n";
-            continue;
-        }
+            cout << "\n-- Borrow Book --\n";
+            displayAllBooks(books, SIZE);
 
-		// Searches for the book by Index position inside array - otherwise returns -1 if not found
-        int index = findBookByISBN(books, SIZE, userISBN);
+            int userISBN;
+            cout << "Enter ISBN to borrow (0 to cancel): ";
+            cin >> userISBN;
 
-        if (index == -1)
-        {
-            cout << "Error: ISBN not found.\n";
-        }
-        else
-        {
-            if (books[index].borrowBook())
+            if (userISBN == 0)
             {
-                cout << "Book borrowed successfully.\n";
+                cout << "Borrow cancelled.\n";
             }
             else
             {
-                cout << "Book is unavailable.\n";
+                int index = findBookByISBN(books, SIZE, userISBN);
+
+                if (index == -1)
+                    cout << "Error: No book found with ISBN " << userISBN << ".\n";
+                else if (books[index].borrowBook())
+                    cout << "Success: Book borrowed successfully.\n";
+                else
+                    cout << "Error: That book is currently unavailable (already borrowed).\n";
             }
         }
 
-        // Show updated list after each attempt
-        cout << "\nUPDATED BOOK LIST\n";
-        displayAllBooks(books, SIZE);
+        // ── Option 2: Return Book 
+        else if (choice == 2)
+        {
+            cout << "\n-- Return Book --\n";
+            displayAllBooks(books, SIZE);
+
+            int userISBN;
+            cout << "Enter ISBN to return (0 to cancel): ";
+            cin >> userISBN;
+
+            if (userISBN == 0)
+            {
+                cout << "Return cancelled.\n";
+            }
+            else
+            {
+                int index = findBookByISBN(books, SIZE, userISBN);
+
+                if (index == -1)
+                    cout << "Error: No book found with ISBN " << userISBN << ".\n";
+                else if (books[index].returnBook())
+                    cout << "Success: Book returned successfully.\n";
+                else
+                    cout << "Error: That book is already available in the library.\n";
+            }
+        }
+
+        // ── Option 3: Display Books
+        else if (choice == 3)
+        {
+            cout << "\n-- All Books --\n";
+            displayAllBooks(books, SIZE);
+        }
+
+        // ── Option 4: Sort Books
+        else if (choice == 4)
+        {
+            sortByISBN(books, SIZE);
+            cout << "\n-- Books Sorted by ISBN --\n";
+            displayAllBooks(books, SIZE);
+        }
+
+        // ── Invalid input 
+        else
+        {
+            cout << "Invalid choice. Please enter 0-4.\n";
+        }
     }
 
     return 0;
+}
+/*
+    // Searches for the book by Index position inside array - otherwise returns -1 if not found
+    int index = findBookByISBN(books, SIZE, userISBN);
+
+    if (index == -1)
+    {
+        cout << "Error: ISBN not found.\n";
+    }
+    else
+    {
+        if (books[index].borrowBook())
+        {
+            cout << "Book borrowed successfully.\n";
+        }
+        else
+        {
+            cout << "Book is unavailable.\n";
+        }
+    }
+
+    // Show updated list after each attempt
+    cout << "\nUPDATED BOOK LIST\n";
+    displayAllBooks(books, SIZE);
+}
+
+return 0;
 }
 
 //
 //
 // adding to commit - test
+*/
