@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
-// Book class represents one book in the library system
 class Book
 {
 private:
@@ -16,7 +16,7 @@ private:
     string dateAdded;
 
 public:
-    // Default constructor – initialises a blank/empty book
+    // Default constructor
     Book();
 
     // Sets all details for the book at once
@@ -25,12 +25,10 @@ public:
     // Displays this book's details as one formatted row
     void displayBookDetails() const;
 
-    // Borrows the book if it is currently available.
-    // Returns true on success, false if the book is already borrowed.
+    // Borrows the book if available — returns true on success
     bool borrowBook();
 
-    // Returns the book if it is currently borrowed.
-    // Returns true on success, false if the book is already available.
+    // Returns the book if borrowed — returns true on success
     bool returnBook();
 
     // Returns true if the book is available to borrow

@@ -1,11 +1,8 @@
 ﻿#include <iostream>
-#include <iomanip>   // setw, left
+#include <iomanip>
 #include <string>
 #include "Book.h"
 using namespace std;
-
-// Constants
-const int SIZE = 5;
 
 // ── Helper: print table separator line
 void printLine()
@@ -13,7 +10,7 @@ void printLine()
     cout << string(92, '-') << endl;
 }
 
-// ── Helper: print column header row 
+// ── Helper: print column header row
 void displayHeader()
 {
     printLine();
@@ -28,23 +25,23 @@ void displayHeader()
 }
 
 // ── Helper: display all books
-void displayAllBooks(Book books[], int size)
+void displayAllBooks(vector<Book>& books)
 {
     displayHeader();
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < (int)books.size(); i++)
     {
         books[i].displayBookDetails();
     }
     printLine();
 }
 
-// ── Helper: sort books array by ISBN (selection sort) 
-void sortByISBN(Book books[], int size)
+// ── Helper: sort books by ISBN (selection sort)
+void sortByISBN(vector<Book>& books)
 {
-    for (int i = 0; i < size - 1; i++)
+    for (int i = 0; i < (int)books.size() - 1; i++)
     {
         int minIdx = i;
-        for (int j = i + 1; j < size; j++)
+        for (int j = i + 1; j < (int)books.size(); j++)
         {
             if (books[j].getISBN() < books[minIdx].getISBN())
                 minIdx = j;
@@ -58,10 +55,10 @@ void sortByISBN(Book books[], int size)
     }
 }
 
-// ── Helper: find a book by ISBN, returns index or -1 
-int findBookByISBN(Book books[], int size, int targetISBN)
+// ── Helper: find a book by ISBN, returns index or -1
+int findBookByISBN(vector<Book>& books, int targetISBN)
 {
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < (int)books.size(); i++)
     {
         if (books[i].getISBN() == targetISBN)
             return i;
@@ -79,46 +76,132 @@ void displayMenu()
     cout << "  2. Return Book\n";
     cout << "  3. Display Books\n";
     cout << "  4. Sort Books (by ISBN)\n";
+    cout << "  5. Add Book\n";
     cout << "  0. Exit\n";
     cout << "==============================\n";
     cout << "Enter your choice: ";
 }
 
-// ── main ───────────────────────────────────────────────────────────────────────
+// ── Helper: add a new book with full input validation
+void addBook(vector<Book>& books)
+{
+    string title, author, dateAdded;
+    int    isbn;
+    char   availChar;
+    bool   availability;
+
+    cin.ignore(); // flush leftover newline from previous cin >> choice
+
+    // ── Title: letters and spaces only
+    while (true)
+    {
+        cout << "Enter title: ";
+        getline(cin, title);
+        bool valid = true;
+        for (char c : title)
+            if (!isalpha(c) && c != ' ') { valid = false; break; }
+        if (valid && !title.empty()) break;
+        cout << "Invalid: title must contain letters and spaces only.\n";
+    }
+
+    // ── Author: letters and spaces only
+    while (true)
+    {
+        cout << "Enter author: ";
+        getline(cin, author);
+        bool valid = true;
+        for (char c : author)
+            if (!isalpha(c) && c != ' ') { valid = false; break; }
+        if (valid && !author.empty()) break;
+        cout << "Invalid: author must contain letters and spaces only.\n";
+    }
+
+    // ── ISBN: digits only, no duplicates
+    while (true)
+    {
+        cout << "Enter ISBN (numbers only): ";
+        string isbnStr;
+        cin >> isbnStr;
+        bool valid = true;
+        for (char c : isbnStr)
+            if (!isdigit(c)) { valid = false; break; }
+        if (!valid)
+        {
+            cout << "Invalid: ISBN must be numbers only.\n";
+            continue;
+        }
+        isbn = stoi(isbnStr);
+        if (findBookByISBN(books, isbn) != -1)
+        {
+            cout << "Invalid: ISBN " << isbn << " already exists.\n";
+            continue;
+        }
+        break;
+    }
+
+    // ── Availability: y or n only
+    while (true)
+    {
+        cout << "Available? (y/n): ";
+        cin >> availChar;
+        if (availChar == 'y' || availChar == 'Y') { availability = true;  break; }
+        if (availChar == 'n' || availChar == 'N') { availability = false; break; }
+        cout << "Invalid: enter y or n.\n";
+    }
+
+    // ── Date Added
+    cout << "Enter date added (DD-MM-YYYY): ";
+    cin >> dateAdded;
+
+    // ── Add to vector and keep sorted
+    Book newBook;
+    newBook.setBookDetails(title, author, isbn, availability, dateAdded);
+    books.push_back(newBook);
+    sortByISBN(books);
+    cout << "Success: Book added.\n";
+}
+
+// ── main
 int main()
 {
-    // Initialise exactly 5 books 
-    Book books[SIZE];
+    // Using vector instead of static array for dynamic resizing
+    vector<Book> books;
 
-    books[0].setBookDetails("C++ Primer", "Stanley B. Lippman", 1005, true, "2024-01-10");
-    books[1].setBookDetails("Clean Code", "Robert C. Martin", 1002, true, "2024-02-15");
-    books[2].setBookDetails("Python", "Mark Lutz", 1004, false, "2024-03-05");
-    books[3].setBookDetails("The Pragmatic Programmer", "Andrew Hunt", 1001, true, "2024-01-25");
-    books[4].setBookDetails("Introduction to Algorithms", "Thomas H. Cormen", 1003, true, "2024-04-01");
+    Book b;
+    b.setBookDetails("C++ Primer", "Stanley B. Lippman", 1005, true, "10-01-2024");
+    books.push_back(b);
+    b.setBookDetails("Clean Code", "Robert C. Martin", 1002, true, "15-02-2024");
+    books.push_back(b);
+    b.setBookDetails("Python", "Mark Lutz", 1004, false, "05-03-2024");
+    books.push_back(b);
+    b.setBookDetails("The Pragmatic Programmer", "Andrew Hunt", 1001, true, "25-01-2024");
+    books.push_back(b);
+    b.setBookDetails("Introduction to Algorithms", "Thomas H. Cormen", 1003, true, "01-04-2024");
+    books.push_back(b);
 
     // Sort by ISBN at startup
-    sortByISBN(books, SIZE);
+    sortByISBN(books);
 
     int choice = -1;
 
-    //  Main menu loop 
+    // ── Main menu loop
     while (true)
     {
         displayMenu();
         cin >> choice;
 
-        // ── Option 0: Exit 
+        // ── Option 0: Exit
         if (choice == 0)
         {
             cout << "\nGoodbye!\n";
             break;
         }
 
-        // ── Option 1: Borrow Book 
+        // ── Option 1: Borrow Book
         else if (choice == 1)
         {
             cout << "\n-- Borrow Book --\n";
-            displayAllBooks(books, SIZE);
+            displayAllBooks(books);
 
             int userISBN;
             cout << "Enter ISBN to borrow (0 to cancel): ";
@@ -130,8 +213,7 @@ int main()
             }
             else
             {
-                int index = findBookByISBN(books, SIZE, userISBN);
-
+                int index = findBookByISBN(books, userISBN);
                 if (index == -1)
                     cout << "Error: No book found with ISBN " << userISBN << ".\n";
                 else if (books[index].borrowBook())
@@ -141,11 +223,11 @@ int main()
             }
         }
 
-        // ── Option 2: Return Book 
+        // ── Option 2: Return Book
         else if (choice == 2)
         {
             cout << "\n-- Return Book --\n";
-            displayAllBooks(books, SIZE);
+            displayAllBooks(books);
 
             int userISBN;
             cout << "Enter ISBN to return (0 to cancel): ";
@@ -157,8 +239,7 @@ int main()
             }
             else
             {
-                int index = findBookByISBN(books, SIZE, userISBN);
-
+                int index = findBookByISBN(books, userISBN);
                 if (index == -1)
                     cout << "Error: No book found with ISBN " << userISBN << ".\n";
                 else if (books[index].returnBook())
@@ -172,55 +253,30 @@ int main()
         else if (choice == 3)
         {
             cout << "\n-- All Books --\n";
-            displayAllBooks(books, SIZE);
+            displayAllBooks(books);
         }
 
         // ── Option 4: Sort Books
         else if (choice == 4)
         {
-            sortByISBN(books, SIZE);
+            sortByISBN(books);
             cout << "\n-- Books Sorted by ISBN --\n";
-            displayAllBooks(books, SIZE);
+            displayAllBooks(books);
         }
 
-        // ── Invalid input 
+        // ── Option 5: Add Book
+        else if (choice == 5)
+        {
+            cout << "\n-- Add Book --\n";
+            addBook(books);
+        }
+
+        // ── Invalid input
         else
         {
-            cout << "Invalid choice. Please enter 0-4.\n";
+            cout << "Invalid choice. Please enter 0-5.\n";
         }
     }
 
     return 0;
 }
-/*
-    // Searches for the book by Index position inside array - otherwise returns -1 if not found
-    int index = findBookByISBN(books, SIZE, userISBN);
-
-    if (index == -1)
-    {
-        cout << "Error: ISBN not found.\n";
-    }
-    else
-    {
-        if (books[index].borrowBook())
-        {
-            cout << "Book borrowed successfully.\n";
-        }
-        else
-        {
-            cout << "Book is unavailable.\n";
-        }
-    }
-
-    // Show updated list after each attempt
-    cout << "\nUPDATED BOOK LIST\n";
-    displayAllBooks(books, SIZE);
-}
-
-return 0;
-}
-
-//
-//
-// adding to commit - test
-*/

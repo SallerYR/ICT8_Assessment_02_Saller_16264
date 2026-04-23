@@ -1,5 +1,5 @@
 ﻿#include "Book.h"
-#include <iomanip>  // setw, left
+#include <iomanip>
 #include <iostream>
 using namespace std;
 
@@ -13,7 +13,7 @@ Book::Book()
     dateAdded = "";
 }
 
-// ── setBookDetails 
+// ── setBookDetails
 void Book::setBookDetails(string t, string a, int i, bool avail, string date)
 {
     title = t;
@@ -23,8 +23,8 @@ void Book::setBookDetails(string t, string a, int i, bool avail, string date)
     dateAdded = date;
 }
 
-// ── displayBookDetails 
-// Prints one row aligned with the header printed in main().
+// ── displayBookDetails
+// Prints one row aligned with the header printed in main()
 void Book::displayBookDetails() const
 {
     cout << left
@@ -36,31 +36,27 @@ void Book::displayBookDetails() const
         << endl;
 }
 
-// ── borrowBook 
-// Returns true if the book was successfully borrowed, false if already borrowed.
+// ── borrowBook
+// Returns true if successfully borrowed, false if already borrowed
 bool Book::borrowBook()
 {
     if (!availability)
-    {
-        return false;   // already borrowed – caller prints the error
-    }
+        return false;
     availability = false;
     return true;
 }
 
-// ── returnBook 
-// Returns true if the book was successfully returned, false if already on shelf.
+// ── returnBook
+// Returns true if successfully returned, false if already on shelf
 bool Book::returnBook()
 {
     if (availability)
-    {
-        return false;   // already on shelf – caller prints the error
-    }
+        return false;
     availability = true;
     return true;
 }
 
-// ── isAvailable 
+// ── isAvailable
 bool Book::isAvailable() const
 {
     return availability;
